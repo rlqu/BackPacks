@@ -1,0 +1,4 @@
+name: BackPacks
+version: '${project.version}'
+main: de.devsnx.backpacks.BackPacks
+api-version: '1.20'
