@@ -2,40 +2,43 @@ package de.devsnx.backpacks.manager;
 
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
 /**
  * @author Marvin Hänel (DevSnx)
- * @since 12.02.2024 13:52
+ * @since 12.02.2024 14:12
  */
 
 public class BackPack {
 
     private UUID uuid;
-    private Integer backPacks;
-    private HashMap<ItemStack, Integer> itemsFromBackPack;
+    private HashMap<ItemStack, Integer> items;
 
-    public BackPack(UUID uuid){
+    public BackPack(UUID uuid) {
         this.uuid = uuid;
-        this.itemsFromBackPack = new HashMap<ItemStack, Integer>();
+        this.items = new HashMap<>();
     }
 
     public UUID getUuid() {
         return uuid;
     }
 
-    public HashMap<ItemStack, Integer> getItemsFromBackPack() {
-        return itemsFromBackPack;
+    public void addItem(ItemStack item) {
+        int currentQuantity = items.getOrDefault(item, 0);
+        items.put(item, currentQuantity + quantity);
     }
 
-    private void loadBackPacks(){
-
+    public void removeItem(ItemStack item, int quantity) {
+        int currentQuantity = items.getOrDefault(item, 0);
+        if (currentQuantity <= quantity) {
+            items.remove(item);
+        } else {
+            items.put(item, currentQuantity - quantity);
+        }
     }
 
-    private void saveBackPacks(){
-
+    public HashMap<ItemStack, Integer> getItems() {
+        return items;
     }
-
 }
