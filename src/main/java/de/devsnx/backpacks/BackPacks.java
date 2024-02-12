@@ -5,8 +5,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BackPacks extends JavaPlugin {
 
-    public BackPacks instance;
-    public BackPackManager backPackManager;
+    public static BackPacks instance;
+    private BackPackManager backPackManager;
 
     @Override
     public void onEnable() {
@@ -19,7 +19,7 @@ public final class BackPacks extends JavaPlugin {
         instance = null;
     }
 
-    public BackPacks getInstance() {
+    public static BackPacks getInstance() {
         return instance;
     }
 
