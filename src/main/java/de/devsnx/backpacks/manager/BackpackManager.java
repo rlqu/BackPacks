@@ -1,13 +1,11 @@
 package de.devsnx.backpacks.manager;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.*;
-import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.UUID;
+import java.util.Map;
 
 /**
  * @author Marvin Hänel (DevSnx)
@@ -15,80 +13,75 @@ import java.util.UUID;
  */
 
 public class BackpackManager {
+    private final Map<Player, Map<Integer, String>> playerBackpacks; // Speichere die serialisierten Rucksäcke
 
-    private HashMap<UUID, HashMap<UUID, BackPack>> playerBackpacks;
-
-    public BackpackManager(){
-        playerBackpacks = new HashMap<>();
-        loadBackpacks();
+    public BackpackManager() {
+        this.playerBackpacks = new HashMap<>();
     }
 
-    public void addBackpack(UUID playerUUID, BackPack backpack) {
-        HashMap<UUID, BackPack> backpacks = playerBackpacks.getOrDefault(playerUUID, new HashMap<>());
-        backpacks.put(backpack.getUuid(), backpack);
-        playerBackpacks.put(playerUUID, backpacks);
-        saveBackpacks();
+    public void addBackpack(Player player, int backpackId, String serializedBackpack) {
+        Map<Integer, String> playerBackpackMap = playerBackpacks.computeIfAbsent(player, k -> new HashMap<>());
+        playerBackpackMap.put(backpackId, serializedBackpack);
+
+        // Speichere den Rucksack im Dateisystem
+        BackpackFileStorage.saveBackpack(player.getUniqueId(), backpackId, serializedBackpack);
     }
 
-    public void addItemToBackpack(UUID playerUUID, UUID backpackUUID, ItemStack item) {
-        BackPack backpack = playerBackpacks.getOrDefault(playerUUID, new HashMap<>()).get(backpackUUID);
-        if (backpack != null) {
-            backpack.addItem(item);
-            saveBackpacks(); // Speichern nach dem Hinzufügen
-        }
-    }
-
-    public void removeBackpack(UUID playerUUID, UUID backpackUUID) {
-        HashMap<UUID, BackPack> backpacks = playerBackpacks.get(playerUUID);
-        if (backpacks != null) {
-            backpacks.remove(backpackUUID);
-            saveBackpacks();
-        }
-    }
-
-    public BackPack getBackpack(UUID playerUUID, UUID backpackUUID) {
-        HashMap<UUID, BackPack> backpacks = playerBackpacks.get(playerUUID);
-        if (backpacks != null) {
-            return backpacks.get(backpackUUID);
+    public Inventory getBackpack(Player player, int backpackId) {
+        Map<Integer, String> playerBackpackMap = playerBackpacks.get(player);
+        if (playerBackpackMap != null) {
+            String serializedBackpack = playerBackpackMap.get(backpackId);
+            if (serializedBackpack != null) {
+                return BackpackSerializer.deserializeBackpack(serializedBackpack);
+            }
         }
         return null;
     }
 
-    public HashMap<UUID, BackPack> getPlayerBackpacks(UUID playerUUID) {
-        return playerBackpacks.getOrDefault(playerUUID, new HashMap<>());
-    }
-
-    private void loadBackpacks(){
-        try {
-            File file = new File("backpacks.json");
-            if (!file.exists())
-                return;
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            StringBuilder jsonString = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                jsonString.append(line);
-            }
-            reader.close();
-
-            Type type = new TypeToken<HashMap<UUID, HashMap<UUID, BackPack>>>(){}.getType();
-            playerBackpacks = new Gson().fromJson(jsonString.toString(), type);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public int getNextAvailableBackpackId(Player player) {
+        Map<Integer, String> playerBackpackMap = playerBackpacks.getOrDefault(player, new HashMap<>());
+        int nextId = 1;
+        while (playerBackpackMap.containsKey(nextId)) {
+            nextId++;
         }
+        return nextId;
     }
 
-    private void saveBackpacks(){
-        try {
-            File file = new File("backpacks.json");
-            if (!file.exists())
-                file.createNewFile();
-            FileWriter writer = new FileWriter(file);
-            new Gson().toJson(playerBackpacks, writer);
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public boolean isBackpackInventory(Player player, Inventory inventory) {
+        // Überprüfe, ob der Spieler einen Rucksack hat
+        Map<Integer, String> playerBackpackMap = playerBackpacks.get(player);
+        if (playerBackpackMap != null) {
+            // Durchlaufe die Rucksäcke des Spielers
+            for (Map.Entry<Integer, String> entry : playerBackpackMap.entrySet()) {
+                // Konstruiere den erwarteten Titel des Rucksack-Inventars
+                String expectedTitle = "Backpack #" + entry.getKey();
+
+                // Vergleiche den erwarteten Titel mit dem aktuellen Titel des Inventars
+                if (expectedTitle.equals(inventory.getTitle())) {
+                    return true; // Das Inventar ist ein Rucksack-Inventar
+                }
+            }
+        }
+        return false; // Das Inventar ist kein Rucksack-Inventar
+    }
+
+    public int getBackpackIdFromInventoryTitle(String inventoryTitle) {
+        for (Map<Integer, String> backpacks : playerBackpacks.values()) {
+            for (Map.Entry<Integer, String> entry : backpacks.entrySet()) {
+                if (entry.getValue().equals(inventoryTitle)) {
+                    return entry.getKey();
+                }
+            }
+        }
+        return -1; // Rückgabe -1 wenn Rucksack nicht gefunden wurde
+    }
+
+    public void updateBackpack(Player player, int backpackId, String serializedBackpack) {
+        Map<Integer, String> playerBackpackMap = playerBackpacks.get(player);
+        if (playerBackpackMap != null && playerBackpackMap.containsKey(backpackId)) {
+            playerBackpackMap.put(backpackId, serializedBackpack);
+            BackpackFileStorage.saveBackpack(player.getUniqueId(), backpackId, serializedBackpack);
+            // Du könntest hier auch die saveBackpack-Methode aus BackpackFileStorage aufrufen, um den Rucksack zu speichern
         }
     }
 }

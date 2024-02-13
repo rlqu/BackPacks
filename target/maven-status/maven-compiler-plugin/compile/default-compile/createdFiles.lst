@@ -1,0 +1,11 @@
+de\devsnx\backpacks\commands\BackpackCommand.class
+de\devsnx\backpacks\listener\InventoryOpenListener.class
+de\devsnx\backpacks\manager\SerializedItemStack.class
+de\devsnx\backpacks\listener\InventoryCloseListener.class
+de\devsnx\backpacks\manager\BackpackManager.class
+de\devsnx\backpacks\file\FileBase.class
+de\devsnx\backpacks\manager\BackpackSerializer.class
+de\devsnx\backpacks\commands\CreateBackpackCommand.class
+de\devsnx\backpacks\manager\BackpackFileStorage.class
+de\devsnx\backpacks\BackPacks.class
+de\devsnx\backpacks\listener\InventoryClickListener.class
