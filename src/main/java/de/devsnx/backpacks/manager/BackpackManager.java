@@ -1,5 +1,8 @@
 package de.devsnx.backpacks.manager;
 
+import de.devsnx.backpacks.utils.ItemCreator;
+import de.devsnx.backpacks.utils.ItemSkull;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -80,7 +83,9 @@ public class BackpackManager {
             if (serializedBackpack == null) {
                 break;
             }
-            backpackMap.put(backpackId, serializedBackpack);
+            if(!backpackMap.containsKey(backpackId)){
+                backpackMap.put(backpackId, serializedBackpack);
+            }
         }
         playerBackpacks.put(player, backpackMap);
     }
@@ -109,6 +114,38 @@ public class BackpackManager {
             return playerBackpacksMap.get(backpackId);
         }
         return null;
+    }
+
+    public Inventory openBackPackInventory(Player player){
+
+        Map<Integer, String> playerBackpacks = getPlayerBackpacks(player);
+
+        Inventory backpackListInventory = Bukkit.createInventory(null, 9 * 6, "§dDeine Backpacks");
+
+        for(int i  = 0; i < 9; i++){
+            backpackListInventory.setItem(i, new ItemCreator().material(Material.STAINED_GLASS_PANE).data((short)7).displayName("").build());
+        }
+
+        if(playerBackpacks.size() == 0) {
+
+            backpackListInventory.setItem(22, new ItemCreator().material(Material.BARRIER).displayName("§cDu hast aktuell keine Rucksäcke").build());
+
+        } else {
+            for (Map.Entry<Integer, String> entry : playerBackpacks.entrySet()) {
+                String backpackTitle = "Backpack #" + entry.getKey();
+                backpackListInventory.addItem(createBackpackItem(backpackTitle));
+            }
+        }
+
+        for(int i  = 4*9; i < 5*9; i++){
+            backpackListInventory.setItem(i, new ItemCreator().material(Material.STAINED_GLASS_PANE).data((short)7).displayName("").build());
+        }
+
+        backpackListInventory.setItem(47, ItemSkull.getSkull3("http://textures.minecraft.net/texture/2e3f50ba62cbda3ecf5479b62fedebd61d76589771cc19286bf2745cd71e47c6", 1, "Info:"));
+        backpackListInventory.setItem(51, ItemSkull.getSkull3("http://textures.minecraft.net/texture/3edd20be93520949e6ce789dc4f43efaeb28c717ee6bfcbbe02780142f716", 1, "§aJetzt Rucksack erstellen."));
+
+        return backpackListInventory;
+
     }
 
 }

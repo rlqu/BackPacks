@@ -1,5 +1,6 @@
 package de.devsnx.backpacks.listener;
 
+import de.devsnx.backpacks.manager.BackpackFileStorage;
 import de.devsnx.backpacks.manager.BackpackManager;
 import de.devsnx.backpacks.manager.BackpackSerializer;
 import org.bukkit.Bukkit;
@@ -20,6 +21,8 @@ public class InventoryClickListener implements Listener {
 
     private final BackpackManager backpackManager;
 
+    private String maxRucksäcke = "Du hast die Maximale anzahl der Rucksäcke erreicht.";
+
     public InventoryClickListener(BackpackManager backpackManager) {
         this.backpackManager = backpackManager;
     }
@@ -29,40 +32,121 @@ public class InventoryClickListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         Inventory clickedInventory = event.getClickedInventory();
 
-        // Überprüfen, ob das geklickte Inventar das Rucksack-Inventar eines Spielers ist
         if (clickedInventory != null && clickedInventory.getTitle().equals("§dDeine Backpacks")) {
-            event.setCancelled(true); // Verhindert, dass das Item aus dem Rucksack-Inventar genommen wird
+            event.setCancelled(true);
 
-            // Überprüfen, ob das angeklickte Item ein Rucksack ist
             ItemStack clickedItem = event.getCurrentItem();
             if (clickedItem != null && clickedItem.getType() == Material.CHEST) {
-                // Extrahieren Sie die Rucksack-ID aus dem Item-Namen
                 String itemName = clickedItem.getItemMeta().getDisplayName();
                 String[] parts = itemName.split("#");
                 if (parts.length == 2) {
                     try {
                         int backpackId = Integer.parseInt(parts[1].trim());
-                        // Laden Sie das entsprechende Rucksack-Inventar und öffnen Sie es für den Spieler
                         String serializedBackpack = backpackManager.getPlayerBackpack(player, backpackId);
                         if (serializedBackpack != null) {
 
                             Inventory oldBackpackInventory = BackpackSerializer.deserializeBackpack(serializedBackpack);
 
-                            // Erstelle ein neues Inventar mit dem gewünschten Titel
                             Inventory newBackpackInventory = Bukkit.createInventory(player, oldBackpackInventory.getSize(), "Backpack #" + backpackId);
-
-                            // Kopiere die Inhalte des alten Inventars in das neue Inventar
                             newBackpackInventory.setContents(oldBackpackInventory.getContents());
 
-                            // Öffne das neue Inventar für den Spieler
                             player.openInventory(newBackpackInventory);
                         }
                     } catch (NumberFormatException e) {
-                        // Fehler beim Extrahieren der Rucksack-ID
                         player.sendMessage("Invalid backpack ID.");
                     }
                 }
             }
+
+            if(clickedItem.getType() == Material.SKULL_ITEM){
+
+                if(clickedItem.getItemMeta().getDisplayName().equals("§aJetzt Rucksack erstellen.")){
+
+                    int backpacks = backpackManager.getPlayerBackpacks(player).size();
+
+                    if(player.hasPermission("backpack.27")) {
+                        if(backpacks < 27){
+                            createBackPack(player);
+                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            return;
+                        } else {
+                            player.sendMessage(maxRucksäcke);
+                            return;
+                        }
+                    } else if(player.hasPermission("backpack.24")) {
+                        if(backpacks < 24){
+                            createBackPack(player);
+                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            return;
+                        } else {
+                            player.sendMessage(maxRucksäcke);
+                            return;
+                        }
+
+                    } else if(player.hasPermission( "backpack.20")) {
+                        if(backpacks < 20){
+                            createBackPack(player);
+                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            return;
+                        } else {
+                            player.sendMessage(maxRucksäcke);
+                            return;
+                        }
+                    } else if(player.hasPermission( "backpack.16")) {
+                        if(backpacks < 16){
+                            createBackPack(player);
+                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            return;
+                        } else {
+                            player.sendMessage(maxRucksäcke);
+                            return;
+                        }
+                    } else if(player.hasPermission( "backpack.12")) {
+                        if(backpacks < 12){
+                            createBackPack(player);
+                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            return;
+                        } else {
+                            player.sendMessage(maxRucksäcke);
+                            return;
+                        }
+                    } else if(player.hasPermission( "backpack.8")) {
+                        if(backpacks < 8){
+                            createBackPack(player);
+                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            return;
+                        } else {
+                            player.sendMessage(maxRucksäcke);
+                            return;
+                        }
+                    } else if(player.hasPermission( "backpack.4")) {
+                        if(backpacks < 4){
+                            createBackPack(player);
+                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            return;
+                        } else {
+                            player.sendMessage(maxRucksäcke);
+                            return;
+                        }
+                    } else {
+
+                        player.sendMessage(maxRucksäcke);
+
+                    }
+
+                }
+
+            }
+
         }
+
     }
+
+    private void createBackPack(Player player){
+        int newBackpackId = backpackManager.getNextAvailableBackpackId(player);
+        BackpackFileStorage.createBackpack(player.getUniqueId(), newBackpackId);
+        player.sendMessage("Backpack erstellt #" + newBackpackId);
+        backpackManager.loadBackpacks(player);
+    }
+
 }

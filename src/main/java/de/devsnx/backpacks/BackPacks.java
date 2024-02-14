@@ -1,8 +1,6 @@
 package de.devsnx.backpacks;
 
 import de.devsnx.backpacks.commands.BackPacksCommand;
-import de.devsnx.backpacks.commands.OpenbackpackCommand;
-import de.devsnx.backpacks.commands.CreateBackpackCommand;
 import de.devsnx.backpacks.listener.InventoryClickListener;
 import de.devsnx.backpacks.listener.InventoryCloseListener;
 import de.devsnx.backpacks.listener.PlayerListener;
@@ -26,10 +24,7 @@ public final class BackPacks extends JavaPlugin {
 
         pluginManager.registerEvents(new PlayerListener(backPackManager), this);
 
-        getCommand("createbackpack").setExecutor(new CreateBackpackCommand(backPackManager));
-        getCommand("openbackpack").setExecutor(new OpenbackpackCommand(backPackManager));
         getCommand("backpacks").setExecutor(new BackPacksCommand(backPackManager));
-
     }
 
     @Override

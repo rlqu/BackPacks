@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -15,16 +16,17 @@ public class BackpackFileStorage {
     private static final String BACKPACKS_FOLDER = "plugins/backpacks";
 
     public static void createBackpack(UUID playerUUID, int backpackId) {
-        // Erstelle den Ordner für den Spieler, wenn er nicht existiert
+
         File playerFolder = new File(BACKPACKS_FOLDER, playerUUID.toString());
         if (!playerFolder.exists()) {
             playerFolder.mkdirs();
         }
 
-        // Erstelle die Datei für den Rucksack
         File backpackFile = new File(playerFolder, backpackId + ".json");
         try (FileWriter writer = new FileWriter(backpackFile)) {
-            writer.write("[]");
+            ArrayList<String> test = new ArrayList<>();
+            test.add(" ");
+            writer.write(test.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,7 +45,6 @@ public class BackpackFileStorage {
         }
     }
 
-    // Methode zum Laden eines Rucksacks für einen Spieler
     public static String loadBackpack(UUID playerUUID, int backpackId) {
         File playerFolder = new File(BACKPACKS_FOLDER, playerUUID.toString());
         if (!playerFolder.exists()) {
@@ -63,6 +64,8 @@ public class BackpackFileStorage {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return null;
     }
+
 }

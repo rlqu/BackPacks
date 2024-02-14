@@ -20,12 +20,10 @@ public class PlayerListener implements Listener {
         this.backpackManager = backpackManager;
     }
 
-
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event){
 
         backpackManager.loadBackpacks(event.getPlayer());
-        event.getPlayer().sendMessage("§aAlle Rucksäcke geladen & dem Cache hinzugefügt!");
 
     }
 
@@ -33,7 +31,6 @@ public class PlayerListener implements Listener {
     public void onQuit(PlayerQuitEvent event){
 
         backpackManager.unloadBackpacks(event.getPlayer());
-        Bukkit.getServer().broadcastMessage("§cAll Rücksäcke gespeichert und aus dem Cache gelöscht.");
 
     }
 

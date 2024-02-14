@@ -1,12 +1,16 @@
 package de.devsnx.backpacks.commands;
 
 import de.devsnx.backpacks.manager.BackpackManager;
+import de.devsnx.backpacks.utils.ItemCreator;
+import de.devsnx.backpacks.utils.ItemSkull;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
@@ -24,7 +28,7 @@ public class BackPacksCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
+    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
 
         if (!(sender instanceof Player)) {
             return true;
@@ -32,16 +36,7 @@ public class BackPacksCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        Map<Integer, String> playerBackpacks = backpackManager.getPlayerBackpacks(player);
-
-        Inventory backpackListInventory = Bukkit.createInventory(null, 9 * 3, "§dDeine Backpacks");
-
-        for (Map.Entry<Integer, String> entry : playerBackpacks.entrySet()) {
-            String backpackTitle = "Backpack #" + entry.getKey();
-            backpackListInventory.addItem(backpackManager.createBackpackItem(backpackTitle));
-        }
-
-        player.openInventory(backpackListInventory);
+        player.openInventory(backpackManager.openBackPackInventory(player));
         return true;
     }
 
