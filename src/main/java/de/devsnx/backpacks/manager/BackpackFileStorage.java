@@ -12,9 +12,24 @@ import java.util.UUID;
  */
 
 public class BackpackFileStorage {
-    private static final String BACKPACKS_FOLDER = "backpacks";
+    private static final String BACKPACKS_FOLDER = "plugins/backpacks";
 
-    // Methode zum Speichern eines Rucksacks für einen Spieler
+    public static void createBackpack(UUID playerUUID, int backpackId) {
+        // Erstelle den Ordner für den Spieler, wenn er nicht existiert
+        File playerFolder = new File(BACKPACKS_FOLDER, playerUUID.toString());
+        if (!playerFolder.exists()) {
+            playerFolder.mkdirs();
+        }
+
+        // Erstelle die Datei für den Rucksack
+        File backpackFile = new File(playerFolder, backpackId + ".json");
+        try (FileWriter writer = new FileWriter(backpackFile)) {
+            writer.write("[]");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void saveBackpack(UUID playerUUID, int backpackId, String serializedBackpack) {
         File playerFolder = new File(BACKPACKS_FOLDER, playerUUID.toString());
         if (!playerFolder.exists()) {

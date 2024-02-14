@@ -9,17 +9,16 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 /**
  * @author Marvin Hänel (DevSnx)
  * @since 13.02.2024 17:31
  */
 
-public class BackpackCommand implements CommandExecutor {
+public class OpenbackpackCommand implements CommandExecutor {
     private final BackpackManager backpackManager;
 
-    public BackpackCommand(BackpackManager backpackManager) {
+    public OpenbackpackCommand(BackpackManager backpackManager) {
         this.backpackManager = backpackManager;
     }
 
@@ -62,6 +61,8 @@ public class BackpackCommand implements CommandExecutor {
 
         // Öffne das neue Inventar für den Spieler
         player.openInventory(newBackpackInventory);
+
         return true;
     }
+
 }

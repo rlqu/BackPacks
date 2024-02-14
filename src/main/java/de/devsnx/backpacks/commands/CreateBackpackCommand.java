@@ -42,11 +42,10 @@ public class CreateBackpackCommand implements CommandExecutor {
 
         // Serialisiere das Rucksack-Inventory und speichere es in einer Datei
         String serializedBackpack = BackpackSerializer.serializeBackpack(newBackpackInventory);
-        BackpackFileStorage.saveBackpack(player.getUniqueId(), newBackpackId, serializedBackpack);
-
-        // Gib eine Bestätigungsnachricht aus
-        player.sendMessage("New backpack created with ID " + newBackpackId + "!");
+        BackpackFileStorage.createBackpack(player.getUniqueId(), newBackpackId);
+        player.sendMessage("Backpack erstellt #" + newBackpackId);
 
         return true;
     }
+
 }

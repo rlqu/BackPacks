@@ -1,7 +1,6 @@
 package de.devsnx.backpacks.listener;
 
 import de.devsnx.backpacks.manager.BackpackManager;
-import de.devsnx.backpacks.manager.BackpackSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,15 +30,13 @@ public class InventoryCloseListener implements Listener {
             // Erhalte die Rucksack-ID aus dem Inventartitel
             int backpackId = backpackManager.getBackpackIdFromInventoryTitle(inventory.getTitle());
 
-            // Serialisiere das Rucksack-Inventar
-            String serializedBackpack = BackpackSerializer.serializeBackpack(inventory);
-
             // Aktualisiere den Rucksack im BackpackManager
-            backpackManager.updateBackpack(player, backpackId, serializedBackpack);
-            player.sendMessage("§aRucksack gespeichert");
+            backpackManager.updateBackpack(player, backpackId, inventory);
+            player.sendMessage("§aRucksack wurde gespeichert");
+            return;
         }
 
-        player.sendMessage("§cKein Rucksack Inventar");
+        return;
 
     }
 
