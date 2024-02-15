@@ -22,7 +22,7 @@ public class BackpackSerializer {
     public static String serializeBackpack(Inventory backpackInventory) {
         ItemStack[] contents = backpackInventory.getContents();
         List<SerializedItemStack> serializedContents = new ArrayList<>();
-        for (int i = 0; i < contents.length; i++) {
+        for (int i = 0; i < 27; i++) {
             ItemStack itemStack = contents[i];
             if (itemStack != null) {
                 serializedContents.add(new SerializedItemStack(itemStack, i));

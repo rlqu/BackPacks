@@ -25,6 +25,9 @@ public final class BackPacks extends JavaPlugin {
         pluginManager.registerEvents(new PlayerListener(backPackManager), this);
 
         getCommand("backpacks").setExecutor(new BackPacksCommand(backPackManager));
+
+
+
     }
 
     @Override

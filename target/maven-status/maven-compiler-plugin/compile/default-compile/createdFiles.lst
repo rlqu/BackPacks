@@ -8,5 +8,6 @@ de\devsnx\backpacks\manager\BackpackSerializer$1.class
 de\devsnx\backpacks\listener\InventoryClickListener.class
 de\devsnx\backpacks\listener\InventoryCloseListener.class
 de\devsnx\backpacks\manager\BackpackManager.class
+de\devsnx\backpacks\listener\InventoryClickListener$1.class
 de\devsnx\backpacks\manager\BackpackFileStorage.class
 de\devsnx\backpacks\BackPacks.class

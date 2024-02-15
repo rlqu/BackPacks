@@ -4,11 +4,13 @@ import de.devsnx.backpacks.utils.ItemCreator;
 import de.devsnx.backpacks.utils.ItemSkull;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,25 +46,13 @@ public class BackpackManager {
         Map<Integer, String> playerBackpackMap = playerBackpacks.get(player);
         if (playerBackpackMap != null) {
             for (Map.Entry<Integer, String> entry : playerBackpackMap.entrySet()) {
-                String expectedTitle = "Backpack #" + entry.getKey();
+                String expectedTitle = BackpackFileStorage.getBackpackNameById(player.getUniqueId(), entry.getKey());
                 if (expectedTitle.equals(inventory.getTitle())) {
                     return true; // Das Inventar ist ein Rucksack-Inventar
                 }
             }
         }
         return false; // Das Inventar ist kein Rucksack-Inventar
-    }
-
-    public int getBackpackIdFromInventoryTitle(String inventoryTitle) {
-        for (Map<Integer, String> backpacks : playerBackpacks.values()) {
-            for (Map.Entry<Integer, String> entry : backpacks.entrySet()) {
-                String expectedTitle = "Backpack #" + entry.getKey();
-                if (expectedTitle.equals(inventoryTitle)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        return -1; // Rückgabe -1 wenn Rucksack nicht gefunden wurde
     }
 
     public void updateBackpack(Player player, int backpackId, Inventory updatedBackpackInventory) {
@@ -98,7 +88,7 @@ public class BackpackManager {
         ItemStack backpackItem = new ItemStack(Material.CHEST);
         ItemMeta meta = backpackItem.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(backpackTitle);
+            meta.setDisplayName("§b" + backpackTitle);
             backpackItem.setItemMeta(meta);
         }
         return backpackItem;
@@ -121,19 +111,14 @@ public class BackpackManager {
         Map<Integer, String> playerBackpacks = getPlayerBackpacks(player);
 
         Inventory backpackListInventory = Bukkit.createInventory(null, 9 * 6, "§dDeine Backpacks");
-
-        for(int i  = 0; i < 9; i++){
-            backpackListInventory.setItem(i, new ItemCreator().material(Material.STAINED_GLASS_PANE).data((short)7).displayName("").build());
-        }
-
         if(playerBackpacks.size() == 0) {
 
             backpackListInventory.setItem(22, new ItemCreator().material(Material.BARRIER).displayName("§cDu hast aktuell keine Rucksäcke").build());
 
         } else {
             for (Map.Entry<Integer, String> entry : playerBackpacks.entrySet()) {
-                String backpackTitle = "Backpack #" + entry.getKey();
-                backpackListInventory.addItem(createBackpackItem(backpackTitle));
+                String backbackTitle = BackpackFileStorage.getBackpackNameById(player.getUniqueId(), entry.getKey());
+                backpackListInventory.addItem(createBackpackItem(backbackTitle));
             }
         }
 

@@ -1,0 +1,24 @@
+#######################
+#                     #
+#   BackPacks 1.0.0   #
+#      by DevSnx      #
+#                     #
+#######################
+
+backpack:
+  main:
+    title: '&dDeine Rucksäcke'
+    itemColor: '&d'
+    itemMaterial: 'CHEST'
+  backpack:
+    titleColor: '&b'
+    changename:
+      itemMaterial: 'NAME_TAG'
+      itemName: '&bRucksack umbenennen'
+
+message:
+  changebackpackname:
+    message: '&aBitte gib einen Namen für den Rucksack ein: '
+    sucsees: '&7Du hast den Rucksacknamen von &e%backpackName% &7auf &b%newBackpackName% &7geändert.'
+    invalidCharacters: '&cDer Rucksackname darf keine Sonderzeichen enthalten. Bitte versuche es erneut.'
+    nameAlreadyExists: '&cDer Rucksackname existiert bereits für einen anderen Rucksack. Bitte versuche es erneut.'

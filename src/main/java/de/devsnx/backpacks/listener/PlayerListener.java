@@ -1,5 +1,6 @@
 package de.devsnx.backpacks.listener;
 
+import de.devsnx.backpacks.manager.BackpackFileStorage;
 import de.devsnx.backpacks.manager.BackpackManager;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -24,6 +25,7 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event){
 
         backpackManager.loadBackpacks(event.getPlayer());
+        BackpackFileStorage.loadBackpackNames(event.getPlayer().getUniqueId());
 
     }
 
@@ -31,6 +33,7 @@ public class PlayerListener implements Listener {
     public void onQuit(PlayerQuitEvent event){
 
         backpackManager.unloadBackpacks(event.getPlayer());
+        BackpackFileStorage.unloadBackpackNames(event.getPlayer().getUniqueId());
 
     }
 
