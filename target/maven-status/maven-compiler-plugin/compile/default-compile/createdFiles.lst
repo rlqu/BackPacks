@@ -1,4 +1,5 @@
 de\devsnx\backpacks\manager\SerializedItemStack.class
+de\devsnx\backpacks\commands\BackPackCommand.class
 de\devsnx\backpacks\commands\BackPacksCommand.class
 de\devsnx\backpacks\manager\BackpackSerializer.class
 de\devsnx\backpacks\listener\PlayerListener.class

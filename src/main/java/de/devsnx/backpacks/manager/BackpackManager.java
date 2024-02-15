@@ -4,6 +4,7 @@ import de.devsnx.backpacks.utils.ItemCreator;
 import de.devsnx.backpacks.utils.ItemSkull;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Marvin Hänel (DevSnx)
@@ -21,20 +23,20 @@ import java.util.Map;
 
 public class BackpackManager {
 
-    private final Map<Player, Map<Integer, String>> playerBackpacks;
+    private final Map<UUID, Map<Integer, String>> playerBackpacks;
 
     public BackpackManager() {
         this.playerBackpacks = new HashMap<>();
     }
 
-    public void addBackpack(Player player, int backpackId, String serializedBackpack) {
-        Map<Integer, String> playerBackpackMap = playerBackpacks.computeIfAbsent(player, k -> new HashMap<>());
+    public void addBackpack(UUID uuid, int backpackId, String serializedBackpack) {
+        Map<Integer, String> playerBackpackMap = playerBackpacks.computeIfAbsent(uuid, k -> new HashMap<>());
         playerBackpackMap.put(backpackId, serializedBackpack);
-        BackpackFileStorage.saveBackpack(player.getUniqueId(), backpackId, serializedBackpack);
+        BackpackFileStorage.saveBackpack(uuid, backpackId, serializedBackpack);
     }
 
-    public int getNextAvailableBackpackId(Player player) {
-        Map<Integer, String> playerBackpackMap = playerBackpacks.getOrDefault(player, new HashMap<>());
+    public int getNextAvailableBackpackId(UUID uuid) {
+        Map<Integer, String> playerBackpackMap = playerBackpacks.getOrDefault(uuid, new HashMap<>());
         int nextId = 1;
         while (playerBackpackMap.containsKey(nextId)) {
             nextId++;
@@ -42,11 +44,11 @@ public class BackpackManager {
         return nextId;
     }
 
-    public boolean isBackpackInventory(Player player, Inventory inventory) {
-        Map<Integer, String> playerBackpackMap = playerBackpacks.get(player);
+    public boolean isBackpackInventory(UUID uuid, Inventory inventory) {
+        Map<Integer, String> playerBackpackMap = playerBackpacks.get(uuid);
         if (playerBackpackMap != null) {
             for (Map.Entry<Integer, String> entry : playerBackpackMap.entrySet()) {
-                String expectedTitle = BackpackFileStorage.getBackpackNameById(player.getUniqueId(), entry.getKey());
+                String expectedTitle = BackpackFileStorage.getBackpackNameById(uuid, entry.getKey());
                 if (expectedTitle.equals(inventory.getTitle())) {
                     return true; // Das Inventar ist ein Rucksack-Inventar
                 }
@@ -55,21 +57,21 @@ public class BackpackManager {
         return false; // Das Inventar ist kein Rucksack-Inventar
     }
 
-    public void updateBackpack(Player player, int backpackId, Inventory updatedBackpackInventory) {
+    public void updateBackpack(UUID uuid, int backpackId, Inventory updatedBackpackInventory) {
         String serializedBackpack = BackpackSerializer.serializeBackpack(updatedBackpackInventory);
-        Map<Integer, String> playerBackpackMap = playerBackpacks.get(player);
+        Map<Integer, String> playerBackpackMap = playerBackpacks.get(uuid);
         if (playerBackpackMap != null) {
             if (playerBackpackMap.containsKey(backpackId)) {
                 playerBackpackMap.put(backpackId, serializedBackpack);
-                BackpackFileStorage.saveBackpack(player.getUniqueId(), backpackId, serializedBackpack);
+                BackpackFileStorage.saveBackpack(uuid, backpackId, serializedBackpack);
             }
         }
     }
 
-    public void loadBackpacks(Player player) {
+    public void loadBackpacks(UUID uuid) {
         Map<Integer, String> backpackMap = new HashMap<>();
         for (int backpackId = 1; ; backpackId++) {
-            String serializedBackpack = BackpackFileStorage.loadBackpack(player.getUniqueId(), backpackId);
+            String serializedBackpack = BackpackFileStorage.loadBackpack(uuid, backpackId);
             if (serializedBackpack == null) {
                 break;
             }
@@ -77,11 +79,11 @@ public class BackpackManager {
                 backpackMap.put(backpackId, serializedBackpack);
             }
         }
-        playerBackpacks.put(player, backpackMap);
+        playerBackpacks.put(uuid, backpackMap);
     }
 
-    public void unloadBackpacks(Player player) {
-        playerBackpacks.remove(player);
+    public void unloadBackpacks(UUID uuid) {
+        playerBackpacks.remove(uuid);
     }
 
     public ItemStack createBackpackItem(String backpackTitle) {
@@ -94,21 +96,21 @@ public class BackpackManager {
         return backpackItem;
     }
 
-    public Map<Integer, String> getPlayerBackpacks(Player player) {
-        return playerBackpacks.getOrDefault(player, new HashMap<>());
+    public Map<Integer, String> getPlayerBackpacks(UUID uuid) {
+        return playerBackpacks.getOrDefault(uuid, new HashMap<>());
     }
 
-    public String getPlayerBackpack(Player player, int backpackId) {
-        Map<Integer, String> playerBackpacksMap = playerBackpacks.get(player);
+    public String getPlayerBackpack(UUID uuid, int backpackId) {
+        Map<Integer, String> playerBackpacksMap = playerBackpacks.get(uuid);
         if (playerBackpacksMap != null) {
             return playerBackpacksMap.get(backpackId);
         }
         return null;
     }
 
-    public Inventory openBackPackInventory(Player player){
+    public Inventory openBackPackInventory(UUID uuid){
 
-        Map<Integer, String> playerBackpacks = getPlayerBackpacks(player);
+        Map<Integer, String> playerBackpacks = getPlayerBackpacks(uuid);
 
         Inventory backpackListInventory = Bukkit.createInventory(null, 9 * 6, "§dDeine Backpacks");
         if(playerBackpacks.size() == 0) {
@@ -117,7 +119,7 @@ public class BackpackManager {
 
         } else {
             for (Map.Entry<Integer, String> entry : playerBackpacks.entrySet()) {
-                String backbackTitle = BackpackFileStorage.getBackpackNameById(player.getUniqueId(), entry.getKey());
+                String backbackTitle = BackpackFileStorage.getBackpackNameById(uuid, entry.getKey());
                 backpackListInventory.addItem(createBackpackItem(backbackTitle));
             }
         }
@@ -130,6 +132,62 @@ public class BackpackManager {
         backpackListInventory.setItem(51, ItemSkull.getSkull3("http://textures.minecraft.net/texture/3edd20be93520949e6ce789dc4f43efaeb28c717ee6bfcbbe02780142f716", 1, "§aJetzt Rucksack erstellen."));
 
         return backpackListInventory;
+
+    }
+
+    public Inventory openBackPack(UUID uuid, Integer backpackId){
+
+        if(getPlayerBackpack(uuid, backpackId) == null){
+            return null;
+        }
+
+        String serializedBackpack = getPlayerBackpack(uuid, backpackId);
+
+        if (serializedBackpack == null) {
+           return null;
+        }
+
+        Inventory oldBackpackInventory = BackpackSerializer.deserializeBackpack(serializedBackpack);
+        String invName = BackpackFileStorage.getBackpackNameById(uuid, backpackId);
+        Inventory newBackpackInventory = Bukkit.createInventory(null, 5*9, invName);
+        newBackpackInventory.setContents(oldBackpackInventory.getContents());
+
+        for(int i = 27; i < 36; i++){
+            newBackpackInventory.setItem(i, new ItemCreator().material(Material.STAINED_GLASS_PANE).data((short)7).displayName("§a").build());
+        }
+
+        newBackpackInventory.setItem(40, new ItemCreator().material(Material.NAME_TAG).displayName("§bRucksack Umbenennen").build());
+
+        return newBackpackInventory;
+
+    }
+
+    public Inventory openBackPackFromOtherPlayer(UUID uuid, String targetName, Integer backpackId){
+
+        if(getPlayerBackpack(uuid, backpackId) == null){
+            return null;
+        }
+
+        String serializedBackpack = getPlayerBackpack(uuid, backpackId);
+
+        if (serializedBackpack == null) {
+            return null;
+        }
+
+        Inventory oldBackpackInventory = BackpackSerializer.deserializeBackpack(serializedBackpack);
+        String invName = BackpackFileStorage.getBackpackNameById(uuid, backpackId);
+        Inventory newBackpackInventory = Bukkit.createInventory(null, 5*9, invName);
+        newBackpackInventory.setContents(oldBackpackInventory.getContents());
+
+        for(int i = 27; i < 36; i++){
+            newBackpackInventory.setItem(i, new ItemCreator().material(Material.STAINED_GLASS_PANE).data((short)7).displayName("§a").build());
+        }
+
+        newBackpackInventory.setItem(38, new ItemCreator().material(Material.LAVA_BUCKET).displayName("§bRucksack löschen").build());
+        newBackpackInventory.setItem(40, new ItemCreator().material(Material.PAPER).displayName("§bRucksack Informationen").lore(Arrays.asList("OWNER:" + targetName, "ID:" + backpackId)).build());
+        newBackpackInventory.setItem(42, new ItemCreator().material(Material.BARRIER).displayName("§bRucksack schließen").build());
+
+        return newBackpackInventory;
 
     }
 

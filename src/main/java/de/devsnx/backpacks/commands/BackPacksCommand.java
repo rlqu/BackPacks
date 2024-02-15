@@ -36,7 +36,7 @@ public class BackPacksCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        player.openInventory(backpackManager.openBackPackInventory(player));
+        player.openInventory(backpackManager.openBackPackInventory(player.getUniqueId()));
         return true;
     }
 

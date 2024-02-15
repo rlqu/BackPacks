@@ -24,16 +24,8 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event){
 
-        backpackManager.loadBackpacks(event.getPlayer());
+        backpackManager.loadBackpacks(event.getPlayer().getUniqueId());
         BackpackFileStorage.loadBackpackNames(event.getPlayer().getUniqueId());
-
-    }
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event){
-
-        backpackManager.unloadBackpacks(event.getPlayer());
-        BackpackFileStorage.unloadBackpackNames(event.getPlayer().getUniqueId());
 
     }
 

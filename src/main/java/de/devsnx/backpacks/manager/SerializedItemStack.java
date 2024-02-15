@@ -5,14 +5,24 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Marvin Hänel (DevSnx)
+ * @since 11.02.2024 20:33
+ */
+
 public class SerializedItemStack {
+
     private final String type;
     private final int amount;
     private final short durability;
     private final String[] enchantments;
+    private final List<String> lore;
+    private final String displayName;
     private final int slot;
 
     public SerializedItemStack(ItemStack itemStack, int slot) {
@@ -21,48 +31,49 @@ public class SerializedItemStack {
             this.amount = 0;
             this.durability = 0;
             this.enchantments = new String[0];
+            this.lore = null;
+            this.displayName = null;
             this.slot = slot;
             return;
         }
+
         this.slot = slot;
+        this.type = itemStack.getType().name();
+        this.amount = itemStack.getAmount();
+        this.durability = itemStack.getDurability();
+        this.lore = itemStack.hasItemMeta() && itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : null;
+        this.displayName = itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName() ? itemStack.getItemMeta().getDisplayName() : null;
 
+        Map<Enchantment, Integer> enchantmentsMap;
         if (itemStack.getType() == Material.ENCHANTED_BOOK) {
-            this.type = Material.ENCHANTED_BOOK.name();
-            this.amount = itemStack.getAmount();
-            this.durability = itemStack.getDurability();
-
             EnchantmentStorageMeta meta = (EnchantmentStorageMeta) itemStack.getItemMeta();
-            Map<Enchantment, Integer> enchantmentsMap = meta.getStoredEnchants();
-            this.enchantments = new String[enchantmentsMap.size()];
-            int index = 0;
-            for (Map.Entry<Enchantment, Integer> entry : enchantmentsMap.entrySet()) {
-                enchantments[index++] = entry.getKey().getName() + ":" + entry.getValue();
-            }
+            enchantmentsMap = meta.getStoredEnchants();
         } else {
-            this.type = itemStack.getType().name();
-            this.amount = itemStack.getAmount();
-            this.durability = itemStack.getDurability();
-            Map<Enchantment, Integer> enchantmentsMap = itemStack.getEnchantments();
-            this.enchantments = new String[enchantmentsMap.size()];
-            int index = 0;
-            for (Map.Entry<Enchantment, Integer> entry : enchantmentsMap.entrySet()) {
-                enchantments[index++] = entry.getKey().getName() + ":" + entry.getValue();
-            }
+            enchantmentsMap = itemStack.getEnchantments();
+        }
+
+        this.enchantments = new String[enchantmentsMap.size()];
+        int index = 0;
+        for (Map.Entry<Enchantment, Integer> entry : enchantmentsMap.entrySet()) {
+            enchantments[index++] = entry.getKey().getName() + ":" + entry.getValue();
         }
     }
 
     public ItemStack toItemStack() {
         Material material = Material.getMaterial(type);
-        if (material == null) {
-            // handle unknown material type
+        if (material == null || material.getMaxDurability() == 0) {
+            // handle unknown or non-item material type
             return new ItemStack(Material.AIR);
         }
 
-        ItemStack itemStack;
-        if (material == Material.ENCHANTED_BOOK) {
-            itemStack = new ItemStack(material);
-        } else {
-            itemStack = new ItemStack(material, amount, durability);
+        ItemStack itemStack = new ItemStack(material, amount, durability);
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta != null && lore != null) {
+            meta.setLore(lore);
+            if (displayName != null) { // Set display name if available
+                meta.setDisplayName(displayName);
+            }
+            itemStack.setItemMeta(meta);
         }
 
         for (String enchantmentString : enchantments) {
@@ -71,7 +82,7 @@ public class SerializedItemStack {
                 continue;
             }
             Enchantment enchantment = Enchantment.getByName(parts[0]);
-            if (enchantment == null) {
+            if (enchantment == null || !enchantment.canEnchantItem(itemStack)) {
                 continue;
             }
             int level;
@@ -81,12 +92,12 @@ public class SerializedItemStack {
                 continue;
             }
             if (material == Material.ENCHANTED_BOOK) {
-                EnchantmentStorageMeta meta = (EnchantmentStorageMeta) itemStack.getItemMeta();
-                if (meta == null) {
-                    meta = (EnchantmentStorageMeta) Bukkit.getItemFactory().getItemMeta(material);
+                EnchantmentStorageMeta bookMeta = (EnchantmentStorageMeta) itemStack.getItemMeta();
+                if (bookMeta == null) {
+                    bookMeta = (EnchantmentStorageMeta) Bukkit.getItemFactory().getItemMeta(material);
                 }
-                meta.addStoredEnchant(enchantment, level, true);
-                itemStack.setItemMeta(meta);
+                bookMeta.addStoredEnchant(enchantment, level, true);
+                itemStack.setItemMeta(bookMeta);
             } else {
                 itemStack.addUnsafeEnchantment(enchantment, level);
             }

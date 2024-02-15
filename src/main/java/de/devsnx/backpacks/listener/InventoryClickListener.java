@@ -3,9 +3,6 @@ package de.devsnx.backpacks.listener;
 import de.devsnx.backpacks.BackPacks;
 import de.devsnx.backpacks.manager.BackpackFileStorage;
 import de.devsnx.backpacks.manager.BackpackManager;
-import de.devsnx.backpacks.manager.BackpackSerializer;
-import de.devsnx.backpacks.utils.ItemCreator;
-import de.devsnx.backpacks.utils.ItemSkull;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -38,7 +35,7 @@ public class InventoryClickListener implements Listener {
         Inventory clickedInventory = event.getClickedInventory();
         ItemStack clickedItem = event.getCurrentItem();
 
-        if(backpackManager.isBackpackInventory(player, clickedInventory)) {
+        if(backpackManager.isBackpackInventory(player.getUniqueId(), clickedInventory)) {
 
             if(event.getSlot() >= 27) {
                 event.setCancelled(true);
@@ -103,32 +100,7 @@ public class InventoryClickListener implements Listener {
                 if(BackpackFileStorage.getBackpackIdByName(player.getUniqueId(), itemName) != -1){
 
                     int backpackId = BackpackFileStorage.getBackpackIdByName(player.getUniqueId(), itemName);
-
-                    String serializedBackpack = backpackManager.getPlayerBackpack(player, backpackId);
-                    if (serializedBackpack != null) {
-
-                        Inventory oldBackpackInventory = BackpackSerializer.deserializeBackpack(serializedBackpack);
-
-                        String invName = BackpackFileStorage.getBackpackNameById(player.getUniqueId(), backpackId);
-
-                        Inventory newBackpackInventory = Bukkit.createInventory(player, 5*9, invName);
-                        newBackpackInventory.setContents(oldBackpackInventory.getContents());
-
-                        for(int i = 27; i < 36; i++){
-                            newBackpackInventory.setItem(i, new ItemCreator().material(Material.STAINED_GLASS_PANE).data((short)7).displayName("§a").build());
-                        }
-
-                        newBackpackInventory.setItem(40, new ItemCreator().material(Material.NAME_TAG).displayName("§bRucksack Umbenennen").build());
-
-                        player.openInventory(newBackpackInventory);
-
-
-
-                    } else {
-
-                        player.sendMessage("§cKein Rucksack #1");
-
-                    }
+                    player.openInventory(backpackManager.openBackPack(player.getUniqueId(), backpackId));
 
                 } else {
 
@@ -142,12 +114,12 @@ public class InventoryClickListener implements Listener {
 
                 if(clickedItem.getItemMeta().getDisplayName().equals("§aJetzt Rucksack erstellen.")){
 
-                    int backpacks = backpackManager.getPlayerBackpacks(player).size();
+                    int backpacks = backpackManager.getPlayerBackpacks(player.getUniqueId()).size();
 
                     if(player.hasPermission("backpack.*")) {
                         if(backpacks < 36){
                             createBackPack(player);
-                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            player.openInventory(backpackManager.openBackPackInventory(player.getUniqueId()));
                             return;
                         } else {
                             player.sendMessage(maxRucksäcke);
@@ -156,7 +128,7 @@ public class InventoryClickListener implements Listener {
                     } else if(player.hasPermission("backpack.33")) {
                         if(backpacks < 33){
                             createBackPack(player);
-                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            player.openInventory(backpackManager.openBackPackInventory(player.getUniqueId()));
                             return;
                         } else {
                             player.sendMessage(maxRucksäcke);
@@ -165,7 +137,7 @@ public class InventoryClickListener implements Listener {
                     } else if(player.hasPermission("backpack.30")) {
                         if(backpacks < 30){
                             createBackPack(player);
-                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            player.openInventory(backpackManager.openBackPackInventory(player.getUniqueId()));
                             return;
                         } else {
                             player.sendMessage(maxRucksäcke);
@@ -174,7 +146,7 @@ public class InventoryClickListener implements Listener {
                     } else if(player.hasPermission("backpack.27")) {
                         if(backpacks < 27){
                             createBackPack(player);
-                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            player.openInventory(backpackManager.openBackPackInventory(player.getUniqueId()));
                             return;
                         } else {
                             player.sendMessage(maxRucksäcke);
@@ -183,7 +155,7 @@ public class InventoryClickListener implements Listener {
                     } else if(player.hasPermission("backpack.24")) {
                         if(backpacks < 24){
                             createBackPack(player);
-                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            player.openInventory(backpackManager.openBackPackInventory(player.getUniqueId()));
                             return;
                         } else {
                             player.sendMessage(maxRucksäcke);
@@ -193,7 +165,7 @@ public class InventoryClickListener implements Listener {
                     } else if(player.hasPermission( "backpack.20")) {
                         if(backpacks < 20){
                             createBackPack(player);
-                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            player.openInventory(backpackManager.openBackPackInventory(player.getUniqueId()));
                             return;
                         } else {
                             player.sendMessage(maxRucksäcke);
@@ -202,7 +174,7 @@ public class InventoryClickListener implements Listener {
                     } else if(player.hasPermission( "backpack.16")) {
                         if(backpacks < 16){
                             createBackPack(player);
-                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            player.openInventory(backpackManager.openBackPackInventory(player.getUniqueId()));
                             return;
                         } else {
                             player.sendMessage(maxRucksäcke);
@@ -211,7 +183,7 @@ public class InventoryClickListener implements Listener {
                     } else if(player.hasPermission( "backpack.12")) {
                         if(backpacks < 12){
                             createBackPack(player);
-                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            player.openInventory(backpackManager.openBackPackInventory(player.getUniqueId()));
                             return;
                         } else {
                             player.sendMessage(maxRucksäcke);
@@ -220,7 +192,7 @@ public class InventoryClickListener implements Listener {
                     } else if(player.hasPermission( "backpack.8")) {
                         if(backpacks < 8){
                             createBackPack(player);
-                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            player.openInventory(backpackManager.openBackPackInventory(player.getUniqueId()));
                             return;
                         } else {
                             player.sendMessage(maxRucksäcke);
@@ -229,7 +201,7 @@ public class InventoryClickListener implements Listener {
                     } else if(player.hasPermission( "backpack.4")) {
                         if(backpacks < 4){
                             createBackPack(player);
-                            player.openInventory(backpackManager.openBackPackInventory(player));
+                            player.openInventory(backpackManager.openBackPackInventory(player.getUniqueId()));
                             return;
                         } else {
                             player.sendMessage(maxRucksäcke);
@@ -250,10 +222,10 @@ public class InventoryClickListener implements Listener {
     }
 
     private void createBackPack(Player player){
-        int newBackpackId = backpackManager.getNextAvailableBackpackId(player);
+        int newBackpackId = backpackManager.getNextAvailableBackpackId(player.getUniqueId());
         BackpackFileStorage.createBackpack(player.getUniqueId(), newBackpackId, "Rucksack #"+ newBackpackId);
         player.sendMessage("§aBackpack erstellt: §eRucksack#" + newBackpackId);
-        backpackManager.loadBackpacks(player);
+        backpackManager.loadBackpacks(player.getUniqueId());
     }
 
 }
